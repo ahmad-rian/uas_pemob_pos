@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,13 +34,18 @@ class TransactionController extends Controller
             ]);
 
             foreach ($request->items as $item) {
-                // Kurangi stok produk
+                // Cari produk berdasarkan ID
                 $product = Product::findOrFail($item['product_id']);
+
+                // Periksa stok
                 if ($product->stock < $item['quantity']) {
                     throw new \Exception("Insufficient stock for product {$product->name}");
                 }
+
+                // Kurangi stok
                 $product->decrement('stock', $item['quantity']);
 
+                // Buat item transaksi
                 TransactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $item['product_id'],

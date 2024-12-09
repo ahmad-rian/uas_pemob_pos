@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pos/controllers/cashier_controller.dart';
 import 'package:pos/models/product_model.dart';
-import 'package:pos/models/transaction_model.dart';
+import 'package:pos/models/transactionitem_model.dart';
 
 class CashierContent extends StatelessWidget {
   CashierContent({Key? key}) : super(key: key);

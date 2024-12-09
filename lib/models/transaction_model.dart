@@ -1,47 +1,48 @@
-class TransactionItem {
-  final int productId;
-  final String name;
-  final double price;
-  final int quantity;
+import 'package:pos/models/transactionitem_model.dart';
 
-  TransactionItem({
-    required this.productId,
-    required this.name,
-    required this.price,
-    required this.quantity,
+class Transaction {
+  final int id;
+  final double totalAmount;
+  final String status;
+  final DateTime createdAt;
+  final List<TransactionItem>? items;
+
+  Transaction({
+    required this.id,
+    required this.totalAmount,
+    required this.status,
+    required this.createdAt,
+    this.items,
   });
 
-  double get total => price * quantity;
+  int get itemsCount {
+    if (items == null || items!.isEmpty) return 0;
+    return items!.fold(0, (sum, item) => sum + (item.quantity ?? 0));
+  }
+
+  factory Transaction.fromJson(Map<String, dynamic> json) {
+    return Transaction(
+      id: json['id'] as int,
+      totalAmount: json['total_amount'] is String
+          ? double.tryParse(json['total_amount'].toString()) ?? 0.0
+          : (json['total_amount'] as num).toDouble(),
+      status: json['status'] ?? 'completed',
+      createdAt: DateTime.parse(json['created_at'] as String),
+      items: json['items'] != null
+          ? (json['items'] as List)
+              .map((item) => TransactionItem.fromJson(item))
+              .toList()
+          : null,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
-      'product_id': productId,
-      'quantity': quantity,
-      'price': price,
-      'subtotal': total,
+      'id': id,
+      'total_amount': totalAmount,
+      'status': status,
+      'created_at': createdAt.toIso8601String(),
+      if (items != null) 'items': items!.map((item) => item.toJson()).toList(),
     };
-  }
-
-  TransactionItem copyWith({
-    int? productId,
-    String? name,
-    double? price,
-    int? quantity,
-  }) {
-    return TransactionItem(
-      productId: productId ?? this.productId,
-      name: name ?? this.name,
-      price: price ?? this.price,
-      quantity: quantity ?? this.quantity,
-    );
-  }
-
-  factory TransactionItem.fromJson(Map<String, dynamic> json) {
-    return TransactionItem(
-      productId: json['product_id'],
-      name: json['name'],
-      price: double.parse(json['price'].toString()),
-      quantity: json['quantity'],
-    );
   }
 }

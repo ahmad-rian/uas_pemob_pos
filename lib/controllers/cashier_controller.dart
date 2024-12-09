@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:pos/models/product_model.dart';
-import 'package:pos/models/transaction_model.dart';
+import 'package:pos/models/transactionitem_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CashierController extends GetxController {

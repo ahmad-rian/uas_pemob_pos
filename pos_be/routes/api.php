@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Dashboard
-    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Transactions
     Route::post('/transactions', [TransactionController::class, 'store']);

@@ -16,7 +16,12 @@ class DashboardView extends StatelessWidget {
       key: _scaffoldKey,
       appBar: MediaQuery.of(context).size.width < 1100
           ? AppBar(
-              title: Text('POS System'),
+              elevation: 0,
+              backgroundColor: Colors.white,
+              title: Text('POS System',
+                  style: TextStyle(
+                      color: Colors.black87, fontWeight: FontWeight.w600)),
+              iconTheme: IconThemeData(color: Colors.black87),
               leading: IconButton(
                 icon: Icon(Icons.menu),
                 onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -26,17 +31,27 @@ class DashboardView extends StatelessWidget {
       drawer: MediaQuery.of(context).size.width < 1100
           ? _buildSidebar(context, true)
           : null,
-      body: Row(
-        children: [
-          if (MediaQuery.of(context).size.width >= 1100)
-            _buildSidebar(context, false),
-          Expanded(
-            child: Container(
-              color: Colors.grey[100],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.grey[50]!,
+              Colors.grey[100]!,
+              Colors.grey[50]!,
+            ],
+          ),
+        ),
+        child: Row(
+          children: [
+            if (MediaQuery.of(context).size.width >= 1100)
+              _buildSidebar(context, false),
+            Expanded(
               child: Obx(() => _buildContent()),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -45,34 +60,54 @@ class DashboardView extends StatelessWidget {
     return Container(
       width: isDrawer ? MediaQuery.of(context).size.width * 0.85 : 280,
       constraints: BoxConstraints(maxWidth: 280),
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: Offset(0, 0),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           // Profile Section
           Container(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 32),
             decoration: BoxDecoration(
-              color: Colors.blue[50],
+              color: Colors.white,
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.blue.withOpacity(0.2),
+                  color: Colors.grey[100]!,
                   width: 1,
                 ),
               ),
             ),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.person, size: 40, color: Colors.white),
+                Container(
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Colors.blue[400]!, Colors.blue[600]!],
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                    child:
+                        Icon(Icons.person, size: 40, color: Colors.blue[600]),
+                  ),
                 ),
                 SizedBox(height: 16),
                 Obx(() => Text(
                       controller.userName.value,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
@@ -90,56 +125,59 @@ class DashboardView extends StatelessWidget {
               ],
             ),
           ),
+
           // Navigation Items
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _buildNavItem(0, 'Dashboard', Icons.dashboard),
-                  _buildNavItem(1, 'Kasir', Icons.point_of_sale),
-                  _buildNavItem(2, 'Produk', Icons.inventory),
-                ],
-              ),
-            ),
-          ),
-          // Divider before logout
-          Divider(height: 1),
-          // Logout Button
-          Container(
-            padding: EdgeInsets.all(16),
-            child: ElevatedButton(
-              onPressed: () async {
-                final AuthController authController =
-                    Get.find<AuthController>();
-                final success = await authController.logout();
-                if (success) {
-                  Get.offAllNamed('/login');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                minimumSize: Size(double.infinity, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildNavItem(0, 'Dashboard', Icons.dashboard_outlined),
+                    _buildNavItem(1, 'Kasir', Icons.point_of_sale_outlined),
+                    _buildNavItem(2, 'Produk', Icons.inventory_2_outlined),
+                  ],
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.logout, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'Logout',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
             ),
           ),
-          // Additional padding at bottom for better visual
-          SizedBox(height: 8),
+
+          // Logout Section
+          Container(
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.grey[100]!),
+              ),
+            ),
+            child: Obx(() => ElevatedButton.icon(
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () async {
+                          final AuthController authController =
+                              Get.find<AuthController>();
+                          await authController.logout();
+                        },
+                  icon: Icon(Icons.logout_rounded, size: 20),
+                  label: Text(
+                    'Logout',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[50],
+                    foregroundColor: Colors.red,
+                    elevation: 0,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                )),
+          ),
         ],
       ),
     );
@@ -151,33 +189,38 @@ class DashboardView extends StatelessWidget {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           color: isSelected ? Colors.blue.withOpacity(0.1) : Colors.transparent,
         ),
-        child: ListTile(
-          leading: Icon(
-            icon,
-            color: isSelected ? Colors.blue : Colors.grey[700],
-            size: 22,
-          ),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: isSelected ? Colors.blue : Colors.grey[800],
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              fontSize: 15,
+        child: Material(
+          color: Colors.transparent,
+          child: ListTile(
+            leading: Icon(
+              icon,
+              color: isSelected ? Colors.blue[600] : Colors.grey[700],
+              size: 24,
             ),
+            title: Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.blue[600] : Colors.grey[800],
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 15,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onTap: () {
+              controller.changeIndex(index);
+              if (MediaQuery.of(Get.context!).size.width < 1100) {
+                Get.back();
+              }
+            },
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            minLeadingWidth: 0,
+            dense: true,
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          onTap: () {
-            controller.changeIndex(index);
-            // Close drawer if it's open on mobile
-            if (MediaQuery.of(Get.context!).size.width < 1100) {
-              Get.back();
-            }
-          },
         ),
       );
     });
